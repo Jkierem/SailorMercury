@@ -24,19 +24,23 @@ RF24 radio(9, 10);                // define the object to control NRF24L01
 byte addresses[5] = "0007";      // define communication address which should correspond to remote control
 int data[9]={512, 512, 0, 0, 1, 1, 512, 512, 512};  // define array used to save the communication data
 int mode[1];
+
 Servo dirServo;                  // define servo to control turning of smart car
 int dirServoPin = 2;              // define pin for signal line of the last servo
 float dirServoOffset = 6;         // define a variable for deviation(degree) of the servo
 Servo ultrasonicServo;           // define servo to control turning of ultrasonic sensor
 int ultrasonicPin = 3;            // define pin for signal line of the last servo
 float ultrasonicServoOffset = 15; // define a variable for deviation(degree) of the servo
-int trigPin = 2;                  // define Trig pin for ultrasonic ranging module
-int echoPin = 3;                  // define Echo pin for ultrasonic ranging module
+
+int trigPin = 0;                  // define Trig pin for ultrasonic ranging module
+int echoPin = 1;                  // define Echo pin for ultrasonic ranging module
 float maxDistance = 200;          // define the range(cm) for ultrasonic ranging module, Maximum sensor distance is rated at 400-500cm.
 float soundVelocity = 340;        // Sound velocity = 340 m/s
 float rangingTimeOut = 2 * maxDistance / 100 / soundVelocity * 1000000; // define the timeout(ms) for ultrasonic ranging module
+
 #define FORWARD HIGH
 #define BACKWARD LOW
+
 const int dirAPin = 7;    // define pin used to control rotational direction of motor A
 const int pwmAPin = 6;    // define pin for PWM used to control rotational speed of motor A
 const int dirBPin = 4;    // define pin used to control rotational direction of motor B
@@ -49,15 +53,17 @@ const int GPin = A4;
 const int BPin = A5; 
 int RGBVal = 0;
 int automatic = 0;
+
 #define FORWARD LOW
 #define BACKWARD HIGH
+
 void setup() {
-  Serial.begin(9600);
   radio.begin();                      // initialize RF24
   radio.setRetries(0, 15);            // set retries times
   radio.setPALevel(RF24_PA_LOW);      // set power
   radio.openReadingPipe(1, addresses);// open delivery channel
   radio.startListening();             // start monitoring
+
 //  Serial.begin(9600); // initialize serial port
   dirServo.attach(dirServoPin);  // attaches the servo on servoDirPin to the servo object
   ultrasonicServo.attach(ultrasonicPin);  // attaches the servo on ultrasonicPin to the servo object
@@ -69,9 +75,11 @@ void setup() {
   pinMode(RPin, OUTPUT);   // set RPin to output mode
   pinMode(GPin, OUTPUT);   // set GPin to output mode
   pinMode(BPin, OUTPUT);   // set BPin to output mode
+
   pinMode(trigPin, OUTPUT); // set trigPin to output mode
   pinMode(echoPin, INPUT);  // set echoPin to input mode
 }
+
 void loop()
 {
     receiveData();
@@ -116,7 +124,7 @@ void loop()
         ultrasonicServo.write(ultrasonicServoDegree + ultrasonicServoOffset); // steer pan tilt to corresponding position
         delay(50);                // wait 50ms between pings (about 20 pingsc). 29ms should be the shortest delay between pings.
         receiveData();
-        distance = getDistance();// detect the current distance from obstacle with angle of pan tilt stable
+        distance = getDistance(); // detect the current distance from obstacle with angle of pan tilt stable
         if (distance < barDistance) { // if the current measured distance is smaller than the previous one, save the data of current measured distance
           barDegree = ultrasonicServoDegree;       // save the measured angle
           barDistance = distance;     // save the measured distance
